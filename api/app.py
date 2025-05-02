@@ -1,35 +1,24 @@
 from flask import Flask, request, jsonify
-from job import Job
+from chat_job import ChatJob
 
-
-# serve files from ../web
-app = Flask(
-    __name__,
-    static_folder="../web",
-    static_url_path=""
-)
+app = Flask(__name__)
 app.debug = True
 
-# serve index.html
-@app.route("/", methods=["GET"])
-def index():
-    return app.send_static_file("index.html")
-
-
-@app.route('/generate', methods=['POST'])
-def generate():
+@app.route('/chat', methods=['POST'])
+def chat():
     data = request.get_json() or {}
-    prompt = data.get('prompt', '')
+    message = data.get('message', '').strip()
 
-    job = Job(param={'prompt': prompt, 'max_score': 10})
-    job.run()
-    job.calculate_score()
+    if not message:
+        return jsonify({'reply': 'Please provide a message.'}), 400
 
-    return jsonify({
-        'title': job.output.get('title', ''),
-        'code':  '\n'.join(job.output.get('code', [])),
-        'score': job.score
-    }), 200
+    try:
+        job = ChatJob(user_message=message)
+        job.run()
+        return jsonify({'reply': job.reply})
+    except Exception as e:
+        return jsonify({'reply': 'Error occurred.', 'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
