@@ -1,6 +1,5 @@
-import subprocess
+import requests
 
-# 🩺 Veterinarian-focused system instruction
 SYSTEM_PROMPT = (
     "You are a professional and friendly AI assistant specialized in veterinary medicine. "
     "You help pet owners by answering questions related to the health, behavior, care, and general well-being "
@@ -21,28 +20,20 @@ SYSTEM_PROMPT = (
     "- Non-animal-related topics"
 )
 
-def call_llm(prompt: str) -> str:
-    """
-    Calls the local LLaMA2 model via Ollama and returns the response.
-    """
-    full_prompt = f"{SYSTEM_PROMPT}\n\nUser: {prompt}\nAI:"
-
-    try:
-        proc = subprocess.run(
-            ["ollama", "run", "llama2", full_prompt],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        return proc.stdout.strip()
-    except subprocess.CalledProcessError as e:
-        return f"An error occurred while calling the model:\n\nSTDOUT:\n{e.stdout}\nSTDERR:\n{e.stderr}"
-
 class ChatJob:
     def __init__(self, user_message: str):
-        self.prompt = user_message
+        self.prompt = f"{SYSTEM_PROMPT}\n\nUser: {user_message}\nAI:"
         self.reply = ""
 
     def run(self):
-        self.reply = call_llm(self.prompt)
+        try:
+            response = requests.post("http://localhost:11434/api/generate", json={
+                "model": "llama2",
+                "prompt": self.prompt,
+                "stream": False
+            }, timeout=60)
+
+            self.reply = response.json().get("response", "No reply")
+        except Exception as e:
+            self.reply = f"Error: {str(e)}"
 
