@@ -32,4 +32,3 @@ CMD ["sh","-c", "\
   ollama pull llama2 && \
   exec python api/app.py --host 0.0.0.0 --port 5000 \
 "]
-

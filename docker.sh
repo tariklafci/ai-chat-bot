@@ -25,11 +25,11 @@ sudo apt-get update
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # Clone the repository
-git clone https://github.com/tariklafci/ai-code-assistant.git
-cd ai-code-assistant
+git clone https://github.com/tariklafci/ai-chat-bot.git
+cd ai-chat-bot
 
 # Build the Docker image (fixed the wrong flag `-t` position)
-sudo docker build -t tariklafci/ai-code-assistant:latest .
+sudo docker build -t tariklafci/ai-chat-bot:latest .
 
 # Run the container (this will download 3.6GBs model, so it will take some time to website get running)
-sudo docker run --rm -p 5000:5000 tariklafci/ai-code-assistant:latest
+sudo docker run --rm -p 5000:5000 tariklafci/ai-chat-bot:latest

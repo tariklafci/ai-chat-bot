@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>AI Vet Assistant</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 2rem;
+      background-color: #f0f4f8;
+    }
+
+    #chatbox {
+      border: 1px solid #ccc;
+      padding: 1rem;
+      background: #ffffff;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: auto;
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      overflow-y: auto;
+    }
+
+    .msg {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      max-width: 80%;
+      white-space: pre-wrap;
+      line-height: 1.5;
+    }
+
+    .user {
+      background: #d1e7dd;
+      align-self: flex-end;
+    }
+
+    .bot {
+      background: #e2e3f3;
+      align-self: flex-start;
+    }
+
+    form {
+      display: flex;
+      max-width: 800px;
+      margin: 1rem auto;
+      gap: 0.5rem;
+    }
+
+    textarea {
+      flex-grow: 1;
+      height: 4em;
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>AI Veterinary Assistant</h1>
+  <div id="chatbox"></div>
+
+  <form id="frm">
+    <textarea name="message" placeholder="Ask anything about your pet’s health, care, or behavior..." required></textarea>
+    <button type="submit">Send</button>
+  </form>
+
+  <script>
+    const chatbox = document.getElementById('chatbox');
+
+    function addMessage(content, type) {
+      const div = document.createElement('div');
+      div.className = `msg ${type}`;
+      div.innerText = content;
+      chatbox.appendChild(div);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    document.getElementById('frm').onsubmit = async e => {
+      e.preventDefault();
+      const message = e.target.message.value.trim();
+      if (!message) return;
+
+      addMessage(message, 'user');
+      e.target.message.value = '';
+
+      try {
+        const res = await fetch('http://localhost:5000/api/llama/generate', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ prompt: message })
+        });
+
+        if (!res.ok) {
+          throw new Error(`Status ${res.status}`);
+        }
+
+        const data = await res.json();
+        // show the model's title and raw output
+        addMessage(`💡 ${data.title}\n\n${data.raw}`, 'bot');
+      } catch (err) {
+        console.error(err);
+        addMessage("❌ Something went wrong. Please try again.", 'bot');
+      }
+    };
+  </script>
+
+</body>
+</html>
+
