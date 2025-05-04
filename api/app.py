@@ -29,6 +29,8 @@ def generate():
         return jsonify({'error': 'Prompt is required'}), 400
 
     llm_output = call_llm(prompt)
+    print(f"\n[DEBUG] LLM Output:\n{llm_output}\n")  # Add this
+
     title, code = parse_response(llm_output)
 
     return jsonify({
@@ -36,6 +38,7 @@ def generate():
         'code': code.splitlines(),
         'raw': llm_output
     }), 200
+
 
 if __name__ == '__main__':
     # default host and port
