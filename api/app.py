@@ -24,11 +24,12 @@ def static_proxy(path):
 def generate():
     data = request.get_json() or {}
     prompt = data.get('prompt', '')
+    system_instruction = data.get('system_instruction', '')
 
     if not prompt:
         return jsonify({'error': 'Prompt is required'}), 400
 
-    llm_output = call_llm(prompt)
+    llm_output = call_llm(prompt, system_instruction)
     print(f"\n[DEBUG] LLM Output:\n{llm_output}\n")  # Add this
 
     title, code = parse_response(llm_output)

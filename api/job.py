@@ -25,12 +25,18 @@ Never provide information on:
 - Non-animal-related topics
 """
 
-def call_llm(prompt: str) -> str:
+def call_llm(prompt: str, system_instruction: str = "") -> str:
     """
-    Calls Ollama’s CLI to generate a response.
+    Calls Ollama's CLI to generate a response.
     Returns stdout if successful, or an error message.
+    
+    Args:
+        prompt: The user's prompt
+        system_instruction: Custom system instruction. If empty, uses default.
     """
-    full_prompt = f"{SYSTEM_INSTRUCTION}\n\nUser prompt: {prompt}"
+    # Use provided system instruction or fall back to default
+    instruction = system_instruction if system_instruction else SYSTEM_INSTRUCTION
+    full_prompt = f"{instruction}\n\nUser prompt: {prompt}"
 
     try:
         proc = subprocess.run([
